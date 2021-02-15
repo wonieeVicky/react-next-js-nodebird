@@ -3,15 +3,12 @@ import user from "./user";
 import post from "./post";
 import { combineReducers } from "redux";
 
-const initialState = {
-  user: {},
-  post: {},
-};
-
 // Reducer는 Swtich문이 포함된 함수 : (이전 상태, 액션) => 다음 상태 도출
+// combineReducers로 reducer를 합쳐줄 때 각 initialState는 알아서 합쳐진다.
 const rootReducer = combineReducers({
   index: (state = {}, action) => {
     switch (action.type) {
+      // HYDRATE 옵션은 SSR을 위해 추가된 요소이다.
       case HYDRATE:
         console.log("HYDRATE:", action);
         return { ...state, ...action.payload };
