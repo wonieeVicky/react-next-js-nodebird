@@ -1,7 +1,13 @@
 ﻿import { useCallback, useState } from "react";
 import { Button, Card, Popover, Avatar, List, Comment } from "antd";
 import PropTypes from "prop-types";
-import { EllipsisOutlined, HeartOutlined, MessageOutlined, RetweetOutlined, HeartTwoTone } from "@ant-design/icons";
+import {
+  EllipsisOutlined,
+  HeartOutlined,
+  MessageOutlined,
+  RetweetOutlined,
+  HeartTwoTone,
+} from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import PostImages from "./PostImages";
 import CommentForm from "./CommentForm";
@@ -77,7 +83,7 @@ const PostCard = ({ post }) => {
 
 PostCard.propTypes = {
   post: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     User: PropTypes.object,
     content: PropTypes.string,
     createdAt: PropTypes.object,
