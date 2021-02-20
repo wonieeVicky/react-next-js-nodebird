@@ -1,10 +1,4 @@
 ﻿export const initialState = {
-  // id, content는 소문자이고, User, Images, Comments는 대문자인 이유?
-  // DB 시퀄라이즈에서는 어떤 정보가 다른 정보와 관계가 있어서 합쳐져서 나올 경우 앞글자가 대문자로 반환,
-  // 즉, id, content는 데이터가 합쳐지지 않는 게시글 자체의 속성이므로 소문자
-  // User, Images, Comments는 다른 정보와 합쳐지므로 대문자
-
-  // 더미데이터를 받을 때에는 백엔드 개발자와 response로 내려줄 데이터에 대해 미리 협의하는 것이 좋다.
   mainPosts: [
     {
       id: 1,
@@ -41,15 +35,30 @@
     },
   ],
   imagePaths: [],
-  postAdded: false,
+  addPostLoading: false,
+  addPostDone: false,
+  addPostError: null,
+  addCommonetLoading: false,
+  addCommonetDone: false,
+  addCommonetError: null,
 };
 
-// action type을 상수값으로 정의, 중간에 오타가 나는 일이 없고, 값 변경 시 효율적이다.
-const ADD_POST = "ADD_POST";
+export const ADD_POST_REQUEST = "ADD_POST_REQUEST";
+export const ADD_POST_SUCCESS = "ADD_POST_SUCCESS";
+export const ADD_POST_FAILURE = "ADD_POST_FAILURE";
 
-export const addPost = {
-  type: ADD_POST,
-};
+export const ADD_COMMENT_REQUEST = "ADD_COMMENT_REQUEST";
+export const ADD_COMMENT_SUCCESS = "ADD_COMMENT_SUCCESS";
+export const ADD_COMMENT_FAILURE = "ADD_COMMENT_FAILURE";
+
+export const addPost = (data) => ({
+  type: ADD_POST_REQUEST,
+  data,
+});
+export const addComment = (data) => ({
+  type: ADD_COMMENT_REQUEST,
+  data,
+});
 
 const dummyPost = {
   id: 2,
@@ -64,12 +73,46 @@ const dummyPost = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_POST:
+    case ADD_POST_REQUEST:
+      return {
+        ...state,
+        addPostLoading: true,
+        addPostDone: false,
+        addPostError: null,
+      };
+    case ADD_POST_SUCCESS:
       return {
         ...state,
         mainPosts: [dummyPost, ...state.mainPosts], // 앞에 추가해야 게시글이 위에 올라간다.
-        postAdded: true,
+        addPostLoading: false,
+        addPostDone: true,
       };
+    case ADD_POST_FAILURE:
+      return {
+        ...state,
+        addPostLoading: false,
+        addPostError: action.error,
+      };
+    case ADD_COMMENT_REQUEST:
+      return {
+        ...state,
+        addCommentLoading: true,
+        addCommentDone: false,
+        addCommentError: null,
+      };
+    case ADD_COMMENT_SUCCESS:
+      return {
+        ...state,
+        addCommentLoading: false,
+        addCommentDone: true,
+      };
+    case ADD_COMMENT_FAILURE:
+      return {
+        ...state,
+        addCommentLoading: false,
+        addCommentError: action.error,
+      };
+
     default:
       return state;
   }
