@@ -56,7 +56,11 @@ const dummyUser = (data) => ({
   nickname: "vicky",
   id: 1,
   Posts: [{ id: 1 }],
-  Followings: [{ nickname: "heezi" }, { nickname: "zini" }, { nickname: "Soo" }],
+  Followings: [
+    { nickname: "heezi", post: 1 },
+    { nickname: "zini", post: 2 },
+    { nickname: "Soo", post: 3 },
+  ],
   Followers: [{ nickname: "heezi" }, { nickname: "zini" }, { nickname: "Soo" }],
 });
 
@@ -75,7 +79,7 @@ const reducer = (state = initialState, action) =>
       case FOLLOW_SUCCESS:
         draft.followLoading = false;
         draft.followDone = true;
-        draft.me.Followings.push({ id: action.data });
+        draft.me.Followings.push({ nickname: action.data.userId });
         break;
       case FOLLOW_FAILURE:
         draft.followLoading = false;
@@ -89,8 +93,7 @@ const reducer = (state = initialState, action) =>
       case UNFOLLOW_SUCCESS:
         draft.unfollowLoading = false;
         draft.unfollowDone = true;
-        draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data);
-        draft.me = dummyUser(action.data);
+        draft.me.Followings = draft.me.Followings.filter((v) => v.nickname !== action.data.userId);
         break;
       case UNFOLLOW_FAILURE:
         draft.unfollowLoading = false;
