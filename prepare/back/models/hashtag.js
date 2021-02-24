@@ -13,6 +13,8 @@
       collate: "utf8mb4_general_ci", // 이모티콘까지 넣으려면 utf8mb4로 저장
     }
   );
-  Hashtag.associate = (db) => {};
+  Hashtag.associate = (db) => {
+    db.Hashtag.belongsToMany(db.Post); // 하나의 해시태그는 여러개의 글을 가짐
+  };
   return Hashtag;
 };
