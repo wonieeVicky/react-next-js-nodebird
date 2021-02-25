@@ -1,6 +1,16 @@
 ﻿const express = require("express");
 const postRouter = require("./routes/post");
+const db = require("./models");
+
 const app = express();
+
+// 서버 실행 시 db 시퀄라이즈 연결도 같이 된다.
+db.sequelize
+  .sync()
+  .then(() => {
+    console.log("db 연결 성공");
+  })
+  .catch(console.error);
 
 // url /에 보내는 get 메서드
 app.get("/", (req, res) => {
@@ -21,5 +31,5 @@ app.get("/api/posts", (req, res) => {
 app.use("/post", postRouter); // postRouter api path에 /post가 접두어(prefix)로 붙는다.
 
 app.listen(3065, () => {
-  console.log("서버 실행 중");
+  console.log("서버 실행 중!");
 });

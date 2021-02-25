@@ -14,7 +14,7 @@
     }
   );
   Hashtag.associate = (db) => {
-    db.Hashtag.belongsToMany(db.Post); // 하나의 해시태그는 여러개의 글을 가짐
+    db.Hashtag.belongsToMany(db.Post, { through: "PostHashtag" }); // 하나의 해시태그는 여러개의 글을 가짐
   };
   return Hashtag;
 };

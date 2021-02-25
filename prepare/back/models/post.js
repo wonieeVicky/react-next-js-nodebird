@@ -16,9 +16,9 @@
   );
   Post.associate = (db) => {
     db.Post.belongsTo(db.User);
+    db.Post.belongsToMany(db.Hashtag, { through: "PostHashtag" }); // 하나의 게시글은 여러개의 해시태그를 가짐
     db.Post.hasMany(db.Comment); // 작성 글은 여러 코멘트를 가지고 있다.
     db.Post.hasMany(db.Image);
-    db.Post.belongsToMany(db.Hashtag); // 하나의 게시글은 여러개의 해시태그를 가짐
     db.Post.belongsToMany(db.User, { through: "Like", as: "Likers" }); // 사용자 - 게시글 좋아요 관계
     db.Post.belongsTo(db.Post, { as: "Retweet" }); // 리트윗 관계: 어떤 게시글이 어떤 게시글의 리트윗 게시글
   };
