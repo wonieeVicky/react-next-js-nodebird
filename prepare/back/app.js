@@ -4,6 +4,7 @@ const cors = require("cors");
 const postRouter = require("./routes/post");
 const userRouter = require("./routes/user");
 const db = require("./models");
+const passportConfig = require("./passport");
 
 const app = express(); // 이후 app.use 메서드로 express 서버에 미들웨어를 장착한다.
 
@@ -14,6 +15,8 @@ db.sequelize
     console.log("db 연결 성공");
   })
   .catch(console.error);
+
+passportConfig();
 
 // 하위 두 개는 프론트에서 보내는 정보를 req.body로 넣어주기 위한 설정이다.
 app.use(
