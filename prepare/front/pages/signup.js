@@ -1,11 +1,13 @@
-﻿import { useCallback, useMemo, useState } from "react";
-import AppLayout from "../components/AppLayout";
-import Head from "next/head";
-import { Form, Input, Checkbox, Button } from "antd";
-import useInput from "../hooks/useInput";
-import styled from "styled-components";
-import { SIGN_UP_REQUEST } from "../reducers/user";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
+import Router from "next/router";
+import Head from "next/head";
+import styled from "styled-components";
+import { Form, Input, Checkbox, Button } from "antd";
+import AppLayout from "../components/AppLayout";
+import useInput from "../hooks/useInput";
+import { SIGN_UP_REQUEST } from "../reducers/user";
 
 const ErrorMessage = styled.div`
   color: red;
@@ -13,7 +15,21 @@ const ErrorMessage = styled.div`
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading } = useSelector((state) => state.user);
+  const { signUpLoading, signUpDone, signUpError } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    // 회원가입 완료 시 메인으로 보내기
+    if (signUpDone) {
+      Router.push("/");
+    }
+  }, [signUpDone]);
+
+  useEffect(() => {
+    if (signUpError) {
+      alert(signUpError);
+    }
+  }, [signUpError]);
+
   const [email, onChangeEmail] = useInput("");
   const [nickname, onChangeNickname] = useInput("");
   const [password, onChangePassword] = useInput("");
@@ -67,7 +83,13 @@ const Signup = () => {
         <div>
           <label htmlFor="user-password">비밀번호</label>
           <br />
-          <Input name="user-password" type="password" value={password} required onChange={onChangePassword} />
+          <Input
+            name="user-password"
+            type="password"
+            value={password}
+            required
+            onChange={onChangePassword}
+          />
         </div>
         <div>
           <label htmlFor="user-password-check">비밀번호체크</label>

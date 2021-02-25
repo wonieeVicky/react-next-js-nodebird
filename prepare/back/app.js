@@ -1,4 +1,6 @@
 ﻿const express = require("express");
+const cors = require("cors");
+
 const postRouter = require("./routes/post");
 const userRouter = require("./routes/user");
 const db = require("./models");
@@ -14,6 +16,13 @@ db.sequelize
   .catch(console.error);
 
 // 하위 두 개는 프론트에서 보내는 정보를 req.body로 넣어주기 위한 설정이다.
+app.use(
+  cors({
+    // origin: 'http://nodebird.com' // 향후 서비스에서는 해커들의 차단을 위해 origin 도메인에서만 호출되도록 설정
+    // credentials: false, //
+    origin: true, // true 설정 시 * 대신 보낸 곳의 주소가 자동으로 들어가 편리하다.
+  })
+); // 모든 요청에 cors 설정해준다.
 app.use(express.json()); // Front에서 보낸 Json형식의 데이터를 req.body에 넣어준다.
 app.use(express.urlencoded({ extended: true })); // Front에서 보낸 form.submit 형식의 데이터를 req.body에 넣어준다
 
