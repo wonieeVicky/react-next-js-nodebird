@@ -21,7 +21,8 @@ router.post("/login", (req, res, next) => {
         console.error(loginErr);
         return next(loginErr);
       }
-      return res.json(user);
+      // res.setHeader('Cookie', 'cxlhy'); // req.login 시 내부적으로 알아서 해당 토큰을 헤더에 실어 보내준다.
+      return res.status(200).json(user);
     });
   })(req, res, next);
 });
@@ -50,6 +51,13 @@ router.post("/", async (req, res, next) => {
     console.error(error);
     next(error);
   }
+});
+
+router.post("/user/logout", (req, res, next) => {
+  console.log(req.user); // 로그인 후 정보는 passport.deserializeUser를 통해 매번 재실행되어 담기므로 req.user에 데이터가 있다.
+  req.logout();
+  req.session.destroy();
+  res.status(200).send("ok");
 });
 
 module.exports = router;

@@ -1,11 +1,15 @@
 ﻿const express = require("express");
 const cors = require("cors");
-
+const session = require("express-session");
+const passport = require("passport");
+const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
 const postRouter = require("./routes/post");
 const userRouter = require("./routes/user");
 const db = require("./models");
 const passportConfig = require("./passport");
 
+dotenv.config();
 const app = express(); // 이후 app.use 메서드로 express 서버에 미들웨어를 장착한다.
 
 // 서버 실행 시 db 시퀄라이즈 연결도 같이 된다.
@@ -28,6 +32,16 @@ app.use(
 ); // 모든 요청에 cors 설정해준다.
 app.use(express.json()); // Front에서 보낸 Json형식의 데이터를 req.body에 넣어준다.
 app.use(express.urlencoded({ extended: true })); // Front에서 보낸 form.submit 형식의 데이터를 req.body에 넣어준다
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false,
+    secret: process.env.COOKIE_SECRET,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // url /에 보내는 get 메서드
 app.get("/", (req, res) => {
