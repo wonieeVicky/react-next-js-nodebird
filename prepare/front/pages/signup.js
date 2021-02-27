@@ -15,12 +15,18 @@ const ErrorMessage = styled.div`
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading, signUpDone, signUpError } = useSelector((state) => state.user);
+  const { signUpLoading, signUpDone, signUpError, me } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (me && me.id) {
+      Router.replace("/"); // push가 아닌 replace로 하는 이유는 뒤로가기 했을 때 이전 페이지를 유실하기 떄문이다.
+    }
+  }, [me && me.id]);
 
   useEffect(() => {
     // 회원가입 완료 시 메인으로 보내기
     if (signUpDone) {
-      Router.push("/");
+      Router.replace("/");
     }
   }, [signUpDone]);
 

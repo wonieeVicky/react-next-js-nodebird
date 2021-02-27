@@ -1,4 +1,4 @@
-﻿import React, { useCallback } from "react";
+﻿import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Input, Button } from "antd";
 import Link from "next/link";
@@ -16,9 +16,15 @@ const FormWrapper = styled(Form)`
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { logInLoading } = useSelector((state) => state.user);
+  const { logInLoading, logInError } = useSelector((state) => state.user);
   const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
+
+  useEffect(() => {
+    if (logInError) {
+      alert(logInError);
+    }
+  }, [logInError]);
 
   // antd에 onFinish에는 자동으로 e.preventDefault()가 적용되어 있다.
   const onSubmitForm = useCallback(() => dispatch(loginRequestAction({ email, password })), [

@@ -1,28 +1,45 @@
 ﻿const express = require("express");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const { User } = require("../models"); // db.User를 가져옴
+const { User, Post } = require("../models"); // db.User, db.Post를 가져옴
+const db = require("../models");
 const router = express.Router();
 
 // POST /user/login
-// 미들웨어 확장: req, res, next를 사용하기 위해 passport.authenticate 함수를 감싸준다.
 router.post("/login", (req, res, next) => {
-  // err, user, info는 done의 3가지 인자를 의미한다.
   passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.err(err);
-      return next(err); // status 500
+      return next(err);
     }
     if (info) {
-      return res.status(401).send(info.reason); // 401 허가되지 않음 - http 상태코드 공부하기
+      return res.status(401).send(info.reason);
     }
     return req.login(user, async (loginErr) => {
       if (loginErr) {
         console.error(loginErr);
         return next(loginErr);
       }
-      // res.setHeader('Cookie', 'cxlhy'); // req.login 시 내부적으로 알아서 해당 토큰을 헤더에 실어 보내준다.
-      return res.status(200).json(user);
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: user.id },
+        attributes: {
+          exclude: ["password"],
+        },
+        include: [
+          {
+            model: Post,
+          },
+          {
+            model: User,
+            as: "Followings",
+          },
+          {
+            model: User,
+            as: "Followers",
+          },
+        ],
+      });
+      return res.status(200).json(fullUserWithoutPassword);
     });
   })(req, res, next);
 });
