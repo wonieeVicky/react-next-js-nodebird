@@ -7,8 +7,8 @@ const db = require("../models");
 const router = express.Router();
 
 // POST /user/login
-router.post("/login", (req, res, next) => {
-  passport.authenticate("local", isNotLoggedIn, (err, user, info) => {
+router.post("/login", isNotLoggedIn, (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
     if (err) {
       console.err(err);
       return next(err);
