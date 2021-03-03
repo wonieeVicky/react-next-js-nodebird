@@ -7,7 +7,6 @@ const router = express.Router();
 
 // POST /post
 router.post("/", isLoggedIn, async (req, res, next) => {
-  console.log(req);
   try {
     const post = await Post.create({
       content: req.body.content,
@@ -21,9 +20,16 @@ router.post("/", isLoggedIn, async (req, res, next) => {
         },
         {
           model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
         },
         {
           model: User,
+          attributes: ["id", "nickname"],
         },
       ],
     });
@@ -47,10 +53,19 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
     }
     const comment = await Comment.create({
       content: req.body.content,
-      PostId: req.params.postId, // req.params라는 메서드로 postId에 접근 가능
+      PostId: parseInt(req.params.postId, 10), // req.params라는 메서드로 postId에 접근 가능
       UserId: req.user.id,
     });
-    res.status(201).json(comment); // 생성된 데이터가 성공 시 반환된다.
+    const fullComment = await Comment.findOne({
+      where: { id: comment.id },
+      include: [
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+      ],
+    });
+    res.status(201).json(fullComment); // 생성된 데이터가 성공 시 반환된다.
   } catch (err) {
     console.error(err);
     next(error);

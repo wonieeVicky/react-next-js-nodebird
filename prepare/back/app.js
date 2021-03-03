@@ -3,8 +3,10 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const dotenv = require("dotenv");
+const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const postRouter = require("./routes/post");
+const postsRouter = require("./routes/posts");
 const userRouter = require("./routes/user");
 const db = require("./models");
 const passportConfig = require("./passport");
@@ -22,6 +24,7 @@ db.sequelize
 
 passportConfig();
 
+app.use(morgan("dev"));
 // cors 설정
 app.use(
   cors({
@@ -52,15 +55,8 @@ app.get("/api", (req, res) => {
   res.send("hello api"); // 문자열 응답
 });
 
-app.get("/api/posts", (req, res) => {
-  res.json([
-    { id: 1, content: "hello1" },
-    { id: 2, content: "hello2" },
-    { id: 3, content: "hello3" },
-  ]); // json 객체 응답
-});
-
 app.use("/post", postRouter); // postRouter api path에 /post가 접두어(prefix)로 붙는다.
+app.use("/posts", postsRouter);
 app.use("/user", userRouter);
 
 app.listen(3065, () => {
