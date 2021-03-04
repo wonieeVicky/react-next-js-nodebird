@@ -10,7 +10,6 @@ router.get("/", async (req, res, next) => {
       limit: 10,
       order: [
         ["createdAt", "DESC"], // 생성일로 내림차순 정렬
-        [Comment, "createdAt", "DESC"], // 댓글 생성일로 내림차순 정렬
       ],
       include: [
         {
@@ -26,8 +25,14 @@ router.get("/", async (req, res, next) => {
             {
               model: User,
               attributes: ["id", "nickname"],
+              order: [["createdAt", "DESC"]],
             },
           ],
+        },
+        {
+          model: User, // 좋아요 누른 사람
+          as: "Likers",
+          attributes: ["id"],
         },
       ],
     });

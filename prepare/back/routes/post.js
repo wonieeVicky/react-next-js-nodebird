@@ -22,14 +22,19 @@ router.post("/", isLoggedIn, async (req, res, next) => {
           model: Comment,
           include: [
             {
-              model: User,
+              model: User, // 댓글 작성자
               attributes: ["id", "nickname"],
             },
           ],
         },
         {
-          model: User,
+          model: User, // 작성자
           attributes: ["id", "nickname"],
+        },
+        {
+          model: User, // 좋아요 누른사람
+          as: "Likers",
+          attributes: ["id"],
         },
       ],
     });
@@ -69,6 +74,36 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
   } catch (err) {
     console.error(err);
     next(error);
+  }
+});
+
+// PATCH /post/1/like
+router.patch("/:postId/like", async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: parseInt(req.params.postId, 10) } });
+    if (!post) {
+      return res.status(403).send("존재하지 않는 게시글입니다.");
+    }
+    await post.addLikers(req.user.id); // db 조작할 떄는 반드시 await 붙여준다.
+    res.json({ PostId: post.id, UserId: req.user.id });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+// DELETE /post/1/unlike
+router.delete("/:postId/unlike", async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ where: { id: parseInt(req.params.postId, 10) } });
+    if (!post) {
+      return res.status(403).send("존재하지 않는 게시글입니다.");
+    }
+    await post.removeLikers(req.user.id); // db 조작할 떄는 반드시 await 붙여준다.
+    res.json({ PostId: post.id, UserId: req.user.id });
+  } catch (err) {
+    console.error(err);
+    next(err);
   }
 });
 
