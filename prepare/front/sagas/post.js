@@ -99,20 +99,18 @@ function* addPost(action) {
 }
 
 function removePostAPI(data) {
-  return axios.post("/api/post", data);
+  return axios.delete(`/post/${data}`); // delete는 data를 넣어줄 수 없다.
 }
 function* removePost(action) {
   try {
-    // const result = yield call(removePostAPI, action.data);
-    yield delay(1000);
-    const id = shortid.generate();
+    const result = yield call(removePostAPI, action.data);
     yield put({
       type: REMOVE_POST_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
     yield put({
       type: REMOVE_POST_OF_ME,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
     yield put({
