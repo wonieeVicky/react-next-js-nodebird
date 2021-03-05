@@ -1,11 +1,11 @@
-﻿import AppLayout from "../components/AppLayout";
-import Head from "next/head";
+﻿import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import Router from "next/router";
+import Head from "next/head";
+import AppLayout from "../components/AppLayout";
 
 import NicknameEditForm from "../components/NicknameEditForm";
 import FollowList from "../components/FollowList";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
 
 const Profile = () => {
   const { me } = useSelector((state) => state.user);
