@@ -14,13 +14,47 @@ try {
   fs.mkdirSync("uploads");
 }
 
+// 이미지 업로드를 위한 설정
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, done) {
+      done(null, "uploads");
+    },
+    filename(req, file, done) {
+      const ext = path.extname(file.originalname); // 확장자 추출(.png)
+      const basename = path.basename(file.originalname, ext); // 비키
+
+      done(null, basename + "_" + new Date().getTime() + ext); // 비키_12390123912.png
+    },
+  }),
+  limits: {
+    fileSize: 20 * 1024 * 1024,
+  },
+});
+
 // POST /post
-router.post("/", isLoggedIn, async (req, res, next) => {
+router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
+  // formData내 text로만 데이터가 오므로 upload.none() 사용
   try {
     const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id, // passport의 deserializeUser를 통해 req.user.id에 접근 가능함
     });
+    // 이미지가 있을 떄
+    if (req.body.image) {
+      if (Array.isArray(req.body.image)) {
+        // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
+        // Promise.all을 사용해 이미지 경로만 DB에 한번에 저장한다.
+        const images = await Promise.all(
+          req.body.image.map((image) => Image.create({ src: image }))
+        );
+        await post.addImages(images);
+      } else {
+        // 이미지를 하나만 올리면 image: aa.png
+        const image = await Image.create({ src: req.body.image });
+        await post.addImages(image);
+      }
+    }
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
@@ -54,23 +88,6 @@ router.post("/", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// 이미지 업로드를 위한 설정
-const upload = multer({
-  storage: multer.diskStorage({
-    destination(req, file, done) {
-      done(null, "uploads");
-    },
-    filename(req, file, done) {
-      const ext = path.extname(file.originalname); // 확장자 추출(.png)
-      const basename = path.basename(file.originalname, ext); // 비키
-
-      done(null, basename + new Date().getTime() + ext); // 비키12390123912.png
-    },
-  }),
-  limits: {
-    fileSize: 20 * 1024 * 1024,
-  },
-});
 // POST /post/images
 router.post("/images", isLoggedIn, upload.array("image"), async (req, res, next) => {
   try {

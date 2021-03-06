@@ -55,10 +55,8 @@ export const UPLOAD_IMAGES_REQUEST = "UPLOAD_IMAGES_REQUEST";
 export const UPLOAD_IMAGES_SUCCESS = "UPLOAD_IMAGES_SUCCESS";
 export const UPLOAD_IMAGES_FAILURE = "UPLOAD_IMAGES_FAILURE";
 
-export const addPost = (data) => ({
-  type: ADD_POST_REQUEST,
-  data,
-});
+export const REMOVE_IMAGE = "REMOVE_IMAGE"; // 동기 액션이므로 하나의 액션만 만들면 된다. 프론트에서만 지워주므로..!
+
 export const addComment = (data) => ({
   type: ADD_COMMENT_REQUEST,
   data,
@@ -69,6 +67,9 @@ export const addComment = (data) => ({
 const reducer = (state = initialState, action) =>
   produce(state, (draft) => {
     switch (action.type) {
+      case REMOVE_IMAGE:
+        draft.imagePaths = draft.imagePaths.filter((v, i) => i !== action.data);
+        break;
       case LIKE_POST_REQUEST:
         draft.likePostLoading = true;
         draft.likePostDone = false;
@@ -122,9 +123,10 @@ const reducer = (state = initialState, action) =>
         draft.addPostError = null;
         break;
       case ADD_POST_SUCCESS:
-        draft.mainPosts.unshift(action.data);
         draft.addPostLoading = false;
         draft.addPostDone = true;
+        draft.mainPosts.unshift(action.data);
+        draft.imagePaths = [];
         break;
       case ADD_POST_FAILURE:
         draft.addPostLoading = false;

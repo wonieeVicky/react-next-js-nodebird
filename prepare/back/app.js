@@ -4,6 +4,7 @@ const session = require("express-session");
 const passport = require("passport");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const path = require("path");
 const cookieParser = require("cookie-parser");
 const postRouter = require("./routes/post");
 const postsRouter = require("./routes/posts");
@@ -33,6 +34,7 @@ app.use(
     origin: "http://localhost:3026", // true 설정 시 * 대신 보낸 곳의 주소가 자동으로 들어가 편리하다.
   })
 );
+app.use("/", express.static(path.join(__dirname, "uploads"))); // 운영체제에 맞게 알아서 해주는 path.join을 사용해 localhost:3065/uploads에 접근할 수 있도록 해준다.
 // req.body에 데이터 넣어주기 위한 설정
 app.use(express.json()); // Front에서 보낸 Json형식의 데이터를 req.body에 넣어준다.
 app.use(express.urlencoded({ extended: true })); // Front에서 보낸 form.submit 형식의 데이터를 req.body에 넣어준다

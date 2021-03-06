@@ -15,7 +15,12 @@ const PostImages = ({ images }) => {
   if (images.length === 1) {
     return (
       <>
-        <img src={images[0].src} alt={images[0].src} onClick={onZoom} role="presentation" />
+        <img
+          src={`http://localhost:3065/${images[0].src}`}
+          alt={images[0].src}
+          onClick={onZoom}
+          role="presentation"
+        />
         {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </>
     );
@@ -24,14 +29,14 @@ const PostImages = ({ images }) => {
     return (
       <>
         <img
-          src={images[0].src}
+          src={`http://localhost:3065/${images[0].src}`}
           style={{ width: "50%", display: "inline-block" }}
           alt={images[0].src}
           onClick={onZoom}
           role="presentation"
         />
         <img
-          src={images[1].src}
+          src={`http://localhost:3065/${images[1].src}`}
           style={{ width: "50%", display: "inline-block" }}
           alt={images[1].src}
           onClick={onZoom}
@@ -45,7 +50,7 @@ const PostImages = ({ images }) => {
     <>
       <div>
         <img
-          src={images[0].src}
+          src={`http://localhost:3065/${images[0].src}`}
           style={{ width: "50%", display: "inline-block" }}
           alt={images[0].src}
           onClick={onZoom}
@@ -54,7 +59,12 @@ const PostImages = ({ images }) => {
         <div
           role="presentation"
           onClick={onZoom}
-          style={{ display: "inline-block", width: "50%", textAlign: "center", verticalAlign: "middle" }}
+          style={{
+            display: "inline-block",
+            width: "50%",
+            textAlign: "center",
+            verticalAlign: "middle",
+          }}
         >
           <PlusOutlined />
           <br />
