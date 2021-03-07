@@ -2,7 +2,7 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { Post, Comment, User, Image } = require("../models");
+const { Post, Comment, User, Image, Hashtag } = require("../models");
 const { isLoggedIn } = require("./middlewares");
 
 const router = express.Router();
@@ -36,25 +36,34 @@ const upload = multer({
 router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
   // formData내 text로만 데이터가 오므로 upload.none() 사용
   try {
+    const hashtags = req.body.content.match(/#[^\s#]+/g); // hashTag 가져오기
     const post = await Post.create({
       content: req.body.content,
-      UserId: req.user.id, // passport의 deserializeUser를 통해 req.user.id에 접근 가능함
+      UserId: req.user.id,
     });
-    // 이미지가 있을 떄
+
+    if (hashtags) {
+      // #을 slice로 빼고, toLowerCase 소문자로 저장해서 REACT, react 모두 검색되도록 한다.
+      // hashtag에 등록을 할 때, 이미 등록되어 있으면 무시하고, 없는 해시태그일 경우에만 저장한다.
+      // 때문에 create메서드가 아닌 findOrCreate라는 메서드를 사용해야한다.
+      const result = await Promise.all(
+        hashtags.map((tag) => Hashtag.findOrCreate({ where: { name: tag.slice(1).toLowerCase() } }))
+      ); // [[#노드, true], [#리액트, false]]
+      await post.addHashtags(result.map((v) => v[0])); // result가 이차원 배열로 들어오므로 v[0]으로 값만 넣어준다.
+    }
+
     if (req.body.image) {
       if (Array.isArray(req.body.image)) {
-        // 이미지를 여러 개 올리면 image: [aa.png, bb.png]
-        // Promise.all을 사용해 이미지 경로만 DB에 한번에 저장한다.
         const images = await Promise.all(
           req.body.image.map((image) => Image.create({ src: image }))
         );
         await post.addImages(images);
       } else {
-        // 이미지를 하나만 올리면 image: aa.png
         const image = await Image.create({ src: req.body.image });
         await post.addImages(image);
       }
     }
+
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
