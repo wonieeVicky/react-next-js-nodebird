@@ -108,6 +108,99 @@ router.post("/images", isLoggedIn, upload.array("image"), async (req, res, next)
   }
 });
 
+// POST /post/1/retweet
+router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+        },
+      ],
+    });
+    if (!post) {
+      return res.status(403).send("존재하지 않는 게시글입니다.");
+    }
+
+    // 나의 글을 리트윗하거나 다른 사람이 나의 글을 리트윗한 것을 다시 내가 리트윗 하는 것은 막는다.
+    // 위에서 Post.findOne으로 Post as Retweet을 include해주었기 때문에 post.Retweet을 사용할 수 있다.
+    if (req.user.id === post.UserId || (post.Retweet && post.Retweet.UserId === req.user.id)) {
+      return res.status(403).send("자신의 글은 리트윗 할 수 없습니다.");
+    }
+
+    // 다른 게시글을 리트윗하거나 다른 사람이 다른 게시글을 리트윗한 것을 다시 리트윗 하는 것은 가능하다.
+    // post.RetweetId가 있으면 이미 리트윗한 글, 만약 아니라면 null이 되므로 post.id로 지정.
+    const retweetTargetId = post.RetweetId || post.id;
+
+    // 이미 리트윗한 글인지 확인
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user.id,
+        RetweetId: retweetTargetId,
+      },
+    });
+    if (exPost) {
+      return res.status(403).send("이미 리트윗한 글입니다.");
+    }
+
+    // 아래 코드만으로는 구체적으로 어떤 게시글이 리트윗 되었는지 알 수 없다.
+    const retweet = await Post.create({
+      UserId: req.user.id,
+      RetweetId: retweetTargetId,
+      content: "retweet",
+    });
+
+    // 따라서 리트윗 게시글의 정보를 가져오기 위해 넣어준다.
+    // 가져오는 데이터가 많아 include 정보가 많아지면 속도가 매우 느려진다.
+    // 따라서 추가 이벤트로 데이터를 확인할 수 있는 것은 분리해주는 것이 좋다. (리트윗 게시글의 코멘트는 별도 이벤트로 분리)
+    const retweetWithPrevPost = await Post.findOne({
+      where: {
+        id: retweet.id,
+      },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            { model: Image },
+          ],
+        },
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
+        {
+          model: User,
+          as: "Likers",
+          attributes: ["id"],
+        },
+      ],
+    });
+    res.status(201).json(retweetWithPrevPost);
+  } catch (err) {
+    console.error(err);
+    next(error);
+  }
+});
+
 // POST /post/1/comment
 router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
   // 위에 :postId를 통해 파라미터 주입: 주소 부분에서 동적으로 바뀌는 부분을 파라미터라고 함

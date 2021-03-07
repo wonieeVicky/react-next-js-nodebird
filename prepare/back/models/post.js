@@ -5,7 +5,7 @@
     {
       content: {
         type: DataTypes.TEXT, // 글자를 무제한으로 받는다.
-        allowNull: false,
+        allowNull: false, // 어떤 값이든 들어있어야 한다.
       },
       // RetweetId
     },
