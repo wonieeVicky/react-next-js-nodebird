@@ -115,10 +115,10 @@ const reducer = (state = initialState, action) =>
         draft.loadPostsError = null;
         break;
       case LOAD_POSTS_SUCCESS:
-        draft.mainPosts = action.data.concat(draft.mainPosts);
         draft.loadPostsLoading = false;
         draft.loadPostsDone = true;
-        draft.hasMorePosts = draft.mainPosts.length < 50; // 50개 이상으로는 데이터를 더 가져오지 않겠다.
+        draft.mainPosts = draft.mainPosts.concat(action.data);
+        draft.hasMorePosts = action.data.length === 10; // 해당 게시글이 10개 미만이면 false 반환
         break;
       case LOAD_POSTS_FAILURE:
         draft.loadPostsLoading = false;
