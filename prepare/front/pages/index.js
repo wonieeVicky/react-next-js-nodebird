@@ -1,6 +1,7 @@
 ﻿import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { END } from "redux-saga";
+import axios from "axios";
 import AppLayout from "../components/AppLayout";
 import PostCard from "../components/PostCard";
 import PostForm from "../components/PostForm";
@@ -62,10 +63,13 @@ const Home = () => {
   );
 };
 
-// 이 부분이 Home 컴포넌트보다 먼저 실행된다.
+// getServerSideProps이 Home 컴포넌트보다 먼저 실행된다.
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-  // context 안에 store가 들어있다.
-  // 리덕스의 데이터가 처음부터 존재한 상태로 화면이 렌더링 된다.
+  const cookie = context.req ? context.req.headers.cookie : "";
+  axios.defaults.headers.Cookie = "";
+  if (context.req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
   context.store.dispatch({
     type: LOAD_MY_INFO_REQUEST,
   });
