@@ -10,7 +10,11 @@ import NicknameEditForm from "../components/NicknameEditForm";
 import FollowList from "../components/FollowList";
 import wrapper from "../store/configureStore";
 
-import { LOAD_FOLLOWERS_REQUEST, LOAD_FOLLOWINGS_REQUEST } from "../reducers/user";
+import {
+  LOAD_FOLLOWERS_REQUEST,
+  LOAD_FOLLOWINGS_REQUEST,
+  LOAD_MY_INFO_REQUEST,
+} from "../reducers/user";
 
 const Profile = () => {
   const dispatch = useDispatch();

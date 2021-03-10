@@ -9,7 +9,7 @@ import { Form, Input, Checkbox, Button } from "antd";
 import AppLayout from "../components/AppLayout";
 import useInput from "../hooks/useInput";
 import wrapper from "../store/configureStore";
-import { SIGN_UP_REQUEST } from "../reducers/user";
+import { LOAD_MY_INFO_REQUEST, SIGN_UP_REQUEST } from "../reducers/user";
 
 const ErrorMessage = styled.div`
   color: red;
