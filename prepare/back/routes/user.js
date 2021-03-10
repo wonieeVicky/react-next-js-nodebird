@@ -42,6 +42,48 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// GET /user/1 (id 1번 유저 정보 가져오기)
+router.get("/:userId", async (req, res, next) => {
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.userId },
+      attributes: {
+        exclude: ["password"],
+      },
+      include: [
+        {
+          model: Post,
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followings",
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followers",
+          attributes: ["id"],
+        },
+      ],
+    });
+    if (fullUserWithoutPassword) {
+      // 개인정보 침해 예방
+      const data = fullUserWithoutPassword.toJSON();
+      data.Posts = data.Posts.length;
+      data.Followers = data.Followers.length;
+      data.Followings = data.Followings.length;
+
+      res.status(200).json(data);
+    } else {
+      res.status(404).json("존재하지 않는 사용자입니다.");
+    }
+  } catch (err) {
+    console.error(err);
+    next(error);
+  }
+});
+
 // POST /user/ => front saga의 axios.post("http://localhost:3065/user"); 와 연결된다.
 router.post("/", isNotLoggedIn, async (req, res, next) => {
   try {
