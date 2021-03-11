@@ -31,7 +31,7 @@ const AppLayout = ({ children }) => {
 
   return (
     <div>
-      <Global />
+      {/* <Global /> */}
       <Menu mode="horizontal">
         <Menu.Item>
           <Link href="/">

@@ -1,6 +1,9 @@
 ﻿{
   "presets": ["next/babel"],
   "plugins": [
-    ["babel-plugin-styled-components", { "fileName": true, "displayName": true, "pure": true }]
+    [
+      "babel-plugin-styled-components",
+      { "ssr": true, "fileName": true, "displayName": true, "pure": true }
+    ]
   ]
 }
