@@ -5,7 +5,7 @@ import { StopOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { UNFOLLOW_REQUEST, REMOVE_FOLLOWER_REQUEST } from "../reducers/user";
 
-const FollowList = ({ header, data }) => {
+const FollowList = ({ header, data, onClickMore, loading }) => {
   const dispatch = useDispatch();
   const listStyle = useMemo(() => ({ marginBottom: 20 }), []);
   const loadMoreStyle = useMemo(() => ({ textAlign: "center", margin: "10px 0" }), []);
@@ -34,7 +34,9 @@ const FollowList = ({ header, data }) => {
       size="small"
       loadMore={
         <div style={loadMoreStyle}>
-          <Button>더보기</Button>
+          <Button onClick={onClickMore} loading={loading}>
+            더보기
+          </Button>
         </div>
       }
       bordered
@@ -53,6 +55,8 @@ const FollowList = ({ header, data }) => {
 FollowList.propTypes = {
   header: PropTypes.string.isRequired,
   data: PropTypes.array.isRequired,
+  onClickMore: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
 };
 
 export default FollowList;

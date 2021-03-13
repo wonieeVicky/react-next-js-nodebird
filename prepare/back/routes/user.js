@@ -43,6 +43,36 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// GET /user/followers - 내가 팔로워한 사람 목록 가져오기
+router.get("/followers", isLoggedIn, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.user.id } }); // 나를 먼저 찾고
+    if (!user) {
+      res.status(403).send("존재하지 않는 유저입니다.");
+    }
+    const followers = await user.getFollowers({ limit: parseInt(req.query.limit, 10) });
+    res.status(200).json(followers);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+// GET /user/followings - 내가 팔로잉한 사람 목록 가져오기
+router.get("/followings", isLoggedIn, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.user.id } }); // 나를 먼저 찾고
+    if (!user) {
+      res.status(403).send("존재하지 않는 유저입니다.");
+    }
+    const followings = await user.getFollowings({ limit: parseInt(req.query.limit, 10) });
+    res.status(200).json(followings);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
 // GET /user/1 (id 1번 유저 정보 가져오기)
 router.get("/:userId", async (req, res, next) => {
   try {
@@ -270,36 +300,6 @@ router.delete("/follower/:userId", isLoggedIn, async (req, res, next) => {
     }
     await user.removeFollowings(req.user.id);
     res.status(200).json({ UserId: parseInt(req.params.userId, 10) });
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
-});
-
-// GET /user/followers - 내가 팔로워한 사람 목록 가져오기
-router.get("/followers", isLoggedIn, async (req, res, next) => {
-  try {
-    const user = await User.findOne({ where: { id: req.user.id } }); // 나를 먼저 찾고
-    if (!user) {
-      res.status(403).send("존재하지 않는 유저입니다.");
-    }
-    const followers = await user.getFollowers();
-    res.status(200).json(followers);
-  } catch (err) {
-    console.error(err);
-    next(err);
-  }
-});
-
-// GET /user/followings - 내가 팔로잉한 사람 목록 가져오기
-router.get("/followings", isLoggedIn, async (req, res, next) => {
-  try {
-    const user = await User.findOne({ where: { id: req.user.id } }); // 나를 먼저 찾고
-    if (!user) {
-      res.status(403).send("존재하지 않는 유저입니다.");
-    }
-    const followings = await user.getFollowings();
-    res.status(200).json(followings);
   } catch (err) {
     console.error(err);
     next(err);
