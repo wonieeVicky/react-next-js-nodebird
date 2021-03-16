@@ -1,14 +1,14 @@
-﻿import React, { useCallback } from "react";
-import { useSelector } from "react-redux";
-import PropTypes from "prop-types";
-import Link from "next/link";
-import Router from "next/router";
+﻿import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
+import Link from 'next/link';
+import Router from 'next/router';
 
-import { Menu, Input, Row, Col } from "antd";
-import styled, { createGlobalStyle } from "styled-components";
-import UserProfile from "../components/UserProfile";
-import LoginForm from "../components/LoginForm";
-import useInput from "../hooks/useInput";
+import { Menu, Input, Row, Col } from 'antd';
+import styled, { createGlobalStyle } from 'styled-components';
+import UserProfile from '../components/UserProfile';
+import LoginForm from '../components/LoginForm';
+import useInput from '../hooks/useInput';
 
 const SearchInput = styled(Input.Search)`
   vertical-align: middle;
@@ -28,7 +28,7 @@ const Global = createGlobalStyle`
 `;
 
 const AppLayout = ({ children }) => {
-  const [searchInput, onChangeSearchInput] = useInput("");
+  const [searchInput, onChangeSearchInput] = useInput('');
   const { me } = useSelector((state) => state.user);
   const onSearch = useCallback(() => {
     Router.push(`/hashtag/${searchInput}`);
@@ -55,11 +55,6 @@ const AppLayout = ({ children }) => {
             onChange={onChangeSearchInput}
             onSearch={onSearch}
           />
-        </Menu.Item>
-        <Menu.Item>
-          <Link href="/signup">
-            <a>회원가입</a>
-          </Link>
         </Menu.Item>
       </Menu>
       <Row gutter={8}>

@@ -1,25 +1,28 @@
-﻿import { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import PropTypes from "prop-types";
-import Link from "next/link";
-import { Button, Card, Popover, Avatar, List, Comment } from "antd";
+﻿import { useCallback, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
+import Link from 'next/link';
+import moment from 'moment';
+import { Button, Card, Popover, Avatar, List, Comment } from 'antd';
 import {
   EllipsisOutlined,
   HeartOutlined,
   MessageOutlined,
   RetweetOutlined,
   HeartTwoTone,
-} from "@ant-design/icons";
-import PostImages from "./PostImages";
-import CommentForm from "./CommentForm";
-import PostCardContent from "./PostCardContent";
-import FollowButton from "./FollowButton";
+} from '@ant-design/icons';
+import PostImages from './PostImages';
+import CommentForm from './CommentForm';
+import PostCardContent from './PostCardContent';
+import FollowButton from './FollowButton';
 import {
   LIKE_POST_REQUEST,
   UNLIKE_POST_REQUEST,
   REMOVE_POST_REQUEST,
   RETWEET_REQUEST,
-} from "../reducers/post";
+} from '../reducers/post';
+
+moment.locale('ko'); // 기본이 영어이므로 한글로 바꾼다.
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
@@ -29,20 +32,20 @@ const PostCard = ({ post }) => {
 
   const onLike = useCallback(() => {
     if (!id) {
-      return alert("로그인이 필요합니다");
+      return alert('로그인이 필요합니다');
     }
     return dispatch({ type: LIKE_POST_REQUEST, data: post.id });
   }, [id]);
   const onUnlike = useCallback(() => {
     if (!id) {
-      return alert("로그인이 필요합니다");
+      return alert('로그인이 필요합니다');
     }
     return dispatch({ type: UNLIKE_POST_REQUEST, data: post.id });
   }, [id]);
   const onToggleComment = useCallback(() => setCommentFormOpend((prev) => !prev), []);
   const onRemovePost = useCallback(() => {
     if (!id) {
-      return alert("로그인이 필요합니다");
+      return alert('로그인이 필요합니다');
     }
     return dispatch({ type: REMOVE_POST_REQUEST, data: post.id });
   }, [id]);
@@ -50,7 +53,7 @@ const PostCard = ({ post }) => {
   const onRetweet = useCallback(() => {
     // 더블체크
     if (!id) {
-      return alert("로그인이 필요합니다");
+      return alert('로그인이 필요합니다');
     }
     return dispatch({
       type: RETWEET_REQUEST,
@@ -96,6 +99,7 @@ const PostCard = ({ post }) => {
       >
         {post.RetweetId && post.Retweet ? (
           <Card cover={post.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}>
+            <div style={{ float: 'right' }}>{moment(post.createdAt).fromNow()}</div>
             <Card.Meta
               avatar={
                 <Link href={`/user/${post.Retweet.User.id}`}>
@@ -109,17 +113,20 @@ const PostCard = ({ post }) => {
             />
           </Card>
         ) : (
-          <Card.Meta
-            avatar={
-              <Link href={`/user/${post.User.id}`}>
-                <a>
-                  <Avatar>{post.User.nickname[0]}</Avatar>
-                </a>
-              </Link>
-            }
-            title={post.User.nickname}
-            description={<PostCardContent postData={post.content} />}
-          />
+          <>
+            <div style={{ float: 'right' }}>{moment(post.createdAt).fromNow()}</div>
+            <Card.Meta
+              avatar={
+                <Link href={`/user/${post.User.id}`}>
+                  <a>
+                    <Avatar>{post.User.nickname[0]}</Avatar>
+                  </a>
+                </Link>
+              }
+              title={post.User.nickname}
+              description={<PostCardContent postData={post.content} />}
+            />
+          </>
         )}
       </Card>
       {commentFormOpened && (
