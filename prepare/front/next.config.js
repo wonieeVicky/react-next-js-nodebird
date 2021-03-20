@@ -16,7 +16,7 @@ module.exports = withBundleAnalyzer({
       devtool: prod ? 'hidden-source-map' : 'eval', // hidden-source-map 하지않으면 개발에서 소스코드가 모두 노출된다.
       plugins: [
         ...config.plugins,
-        new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /^\.\ko$/),
+        new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /ko/),
       ],
       // 커스텀 해야할 것들이 많아지면 하위 설정에 불변성을 지키는 것이 매우 번거로워지므로
       // immer를 사용해서 불변성을 간편하게 지켜주는 것도 좋다.
