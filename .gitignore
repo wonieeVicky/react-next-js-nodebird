@@ -1,0 +1,10 @@
+﻿/front/build/
+node_modules
+*.pem
+.env
+.next
+
+.cache
+.nuxt
+.vuepress/dist
+.serverless
