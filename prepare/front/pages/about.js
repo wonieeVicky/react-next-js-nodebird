@@ -1,11 +1,11 @@
-﻿import { useSelector } from "react-redux";
-import Head from "next/head";
-import { END } from "redux-saga";
+﻿import { useSelector } from 'react-redux';
+import Head from 'next/head';
+import { END } from 'redux-saga';
 
-import { Avatar, Card } from "antd";
-import AppLayout from "../components/AppLayout";
-import wrapper from "../store/configureStore";
-import { LOAD_USER_REQUEST } from "../reducers/user";
+import { Avatar, Card } from 'antd';
+import AppLayout from '../components/AppLayout';
+import wrapper from '../store/configureStore';
+import { LOAD_USER_REQUEST } from '../reducers/user';
 
 const About = () => {
   const { userInfo } = useSelector((state) => state.user);
@@ -46,7 +46,7 @@ const About = () => {
   );
 };
 
-export const getStaticProps = wrapper.getStaticProps(async (context) => {
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
   context.store.dispatch({
     type: LOAD_USER_REQUEST,
     data: 1,
