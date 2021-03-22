@@ -1,7 +1,7 @@
 ﻿/front/build/
 node_modules
 *.pem
-.env
+*.env
 .next
 
 .cache
