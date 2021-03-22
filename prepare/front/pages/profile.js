@@ -1,17 +1,18 @@
-﻿import { useEffect, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
-import { END } from "redux-saga";
-import axios from "axios";
-import Router from "next/router";
-import useSWR from "swr";
-import Head from "next/head";
-import AppLayout from "../components/AppLayout";
+﻿import { useEffect, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { END } from 'redux-saga';
+import axios from 'axios';
+import Router from 'next/router';
+import useSWR from 'swr';
+import Head from 'next/head';
+import AppLayout from '../components/AppLayout';
 
-import NicknameEditForm from "../components/NicknameEditForm";
-import FollowList from "../components/FollowList";
-import wrapper from "../store/configureStore";
+import NicknameEditForm from '../components/NicknameEditForm';
+import FollowList from '../components/FollowList';
+import wrapper from '../store/configureStore';
+import { backUrl } from '../config/config';
 
-import { LOAD_MY_INFO_REQUEST } from "../reducers/user";
+import { LOAD_MY_INFO_REQUEST } from '../reducers/user';
 
 const fetcher = (url) => axios.get(url, { withCredentials: true }).then((result) => result.data);
 
@@ -21,11 +22,11 @@ const Profile = () => {
   const [followingsLimit, setFollowingsLimit] = useState(3);
 
   const { data: followersData, error: followerError } = useSWR(
-    `http://localhost:3065/user/followers?limit=${followersLimit}`,
+    `${backUrl}/user/followers?limit=${followersLimit}`,
     fetcher
   );
   const { data: followingsData, error: followingError } = useSWR(
-    `http://localhost:3065/user/followings?limit=${followingsLimit}`,
+    `${backUrl}/user/followings?limit=${followingsLimit}`,
     fetcher
   );
 
@@ -34,12 +35,12 @@ const Profile = () => {
 
   useEffect(() => {
     if (!(me && me.id)) {
-      Router.push("/");
+      Router.push('/');
     }
   }, [me && me.id]);
 
   if (!me) {
-    return "내 정보 로딩 중....";
+    return '내 정보 로딩 중....';
   }
 
   // return은 반드시 Hooks보다 위에 있을 수 없다! 무조건 Hooks는 모두 실행되어야 한다.
@@ -73,10 +74,10 @@ const Profile = () => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-  console.log("getServerSideProps start");
+  console.log('getServerSideProps start');
   console.log(context.req.headers);
-  const cookie = context.req ? context.req.headers.cookie : "";
-  axios.defaults.headers.Cookie = "";
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
   if (context.req && cookie) {
     axios.defaults.headers.Cookie = cookie;
   }
@@ -84,7 +85,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
     type: LOAD_MY_INFO_REQUEST,
   });
   context.store.dispatch(END);
-  console.log("getServerSideProps end");
+  console.log('getServerSideProps end');
   await context.store.sagaTask.toPromise();
 });
 

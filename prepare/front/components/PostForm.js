@@ -1,27 +1,28 @@
-﻿import { useCallback, useRef, useEffect } from "react";
-import { Button, Form, Input } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { UPLOAD_IMAGES_REQUEST, REMOVE_IMAGE, ADD_POST_REQUEST } from "../reducers/post";
-import useInput from "../hooks/useInput";
+﻿import { useCallback, useRef, useEffect } from 'react';
+import { Button, Form, Input } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { UPLOAD_IMAGES_REQUEST, REMOVE_IMAGE, ADD_POST_REQUEST } from '../reducers/post';
+import useInput from '../hooks/useInput';
+import { backUrl } from '../config/config';
 
 const PostForm = () => {
   const { imagePaths, addPostDone } = useSelector((state) => state.post);
   const dispatch = useDispatch();
-  const [text, onChangeText, setText] = useInput("");
+  const [text, onChangeText, setText] = useInput('');
 
   useEffect(() => {
     if (addPostDone) {
-      setText(""); // 초기화
+      setText(''); // 초기화
     }
   }, [addPostDone]);
 
   const onSubmit = useCallback(() => {
     if (!text || !text.trim()) {
-      return alert("게시글을 작성하세요.");
+      return alert('게시글을 작성하세요.');
     }
     const formData = new FormData();
-    imagePaths.forEach((p) => formData.append("image", p));
-    formData.append("content", text);
+    imagePaths.forEach((p) => formData.append('image', p));
+    formData.append('content', text);
     return dispatch({ type: ADD_POST_REQUEST, data: formData });
   }, [text, imagePaths]);
 
@@ -32,7 +33,7 @@ const PostForm = () => {
     (e) => {
       const imageFormData = new FormData(); // multipart 형식으로 보낼 수 있다.
       // e.target.files는 유사배열이므로 [].forEach.call 메서드를 사용함
-      [].forEach.call(e.target.files, (f) => imageFormData.append("image", f)); // imageupload 라우터 내 upload.array('image')가 같아야 한다.
+      [].forEach.call(e.target.files, (f) => imageFormData.append('image', f)); // imageupload 라우터 내 upload.array('image')가 같아야 한다.
       dispatch({
         type: UPLOAD_IMAGES_REQUEST,
         data: imageFormData,
@@ -49,7 +50,7 @@ const PostForm = () => {
   });
 
   return (
-    <Form style={{ margin: "10px 0 20px" }} encType="multipart/form-data" onFinish={onSubmit}>
+    <Form style={{ margin: '10px 0 20px' }} encType="multipart/form-data" onFinish={onSubmit}>
       <Input.TextArea
         value={text}
         onChange={onChangeText}
@@ -66,14 +67,14 @@ const PostForm = () => {
           onChange={onChangeImages}
         />
         <Button onClick={onClickImageUpload}>이미지 업로드</Button>
-        <Button type="primary" style={{ float: "right" }} htmlType="submit">
+        <Button type="primary" style={{ float: 'right' }} htmlType="submit">
           짹짹
         </Button>
       </div>
       <div>
         {imagePaths.map((v, i) => (
-          <div key={v} style={{ display: "inline-block" }}>
-            <img src={`http://localhost:3065/${v}`} style={{ width: 200 }} alt={v} />
+          <div key={v} style={{ display: 'inline-block' }}>
+            <img src={`${backUrl}/${v}`} style={{ width: 200 }} alt={v} />
             <div>
               <Button onClick={onRemoveImage(i)}>제거</Button>
             </div>

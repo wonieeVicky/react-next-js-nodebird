@@ -1,7 +1,8 @@
-﻿import { PlusOutlined } from "@ant-design/icons";
-import PropTypes from "prop-types";
-import { useCallback, useState } from "react";
-import ImagesZoom from "./ImagesZoom";
+﻿import { PlusOutlined } from '@ant-design/icons';
+import PropTypes from 'prop-types';
+import { useCallback, useState } from 'react';
+import ImagesZoom from './ImagesZoom';
+import { backUrl } from '../config/config';
 
 const PostImages = ({ images }) => {
   const [showImagesZoom, setShowImagesZoom] = useState(false);
@@ -16,7 +17,7 @@ const PostImages = ({ images }) => {
     return (
       <>
         <img
-          src={`http://localhost:3065/${images[0].src}`}
+          src={`${backUrl}/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
           role="presentation"
@@ -29,15 +30,15 @@ const PostImages = ({ images }) => {
     return (
       <>
         <img
-          src={`http://localhost:3065/${images[0].src}`}
-          style={{ width: "50%", display: "inline-block" }}
+          src={`${backUrl}/${images[0].src}`}
+          style={{ width: '50%', display: 'inline-block' }}
           alt={images[0].src}
           onClick={onZoom}
           role="presentation"
         />
         <img
-          src={`http://localhost:3065/${images[1].src}`}
-          style={{ width: "50%", display: "inline-block" }}
+          src={`${backUrl}/${images[1].src}`}
+          style={{ width: '50%', display: 'inline-block' }}
           alt={images[1].src}
           onClick={onZoom}
           role="presentation"
@@ -50,8 +51,8 @@ const PostImages = ({ images }) => {
     <>
       <div>
         <img
-          src={`http://localhost:3065/${images[0].src}`}
-          style={{ width: "50%", display: "inline-block" }}
+          src={`${backUrl}/${images[0].src}`}
+          style={{ width: '50%', display: 'inline-block' }}
           alt={images[0].src}
           onClick={onZoom}
           role="presentation"
@@ -60,10 +61,10 @@ const PostImages = ({ images }) => {
           role="presentation"
           onClick={onZoom}
           style={{
-            display: "inline-block",
-            width: "50%",
-            textAlign: "center",
-            verticalAlign: "middle",
+            display: 'inline-block',
+            width: '50%',
+            textAlign: 'center',
+            verticalAlign: 'middle',
           }}
         >
           <PlusOutlined />
