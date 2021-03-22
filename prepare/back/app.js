@@ -32,7 +32,7 @@ passportConfig();
 if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined')); // combined를 사용하면 더 자세한 로그를 볼 수 있다.
   app.use(hpp()); // 필수
-  app.use(helmet); // 필수
+  app.use(helmet()); // 필수
 } else {
   app.use(morgan('dev'));
 }
