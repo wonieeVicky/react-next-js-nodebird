@@ -1,1 +1,1 @@
-﻿export const backUrl = 'http://3.35.17.240';
+﻿export const backUrl = 'http://api.vickydev.com';

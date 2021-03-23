@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
 // cors 설정
 app.use(
   cors({
-    origin: ['http://localhost:3026', 'nodebird.com', 'http://52.79.115.13'],
+    origin: ['http://localhost:3026', 'http://vickydev.com'],
     credentials: true,
   })
 );
@@ -54,6 +54,11 @@ app.use(
     saveUninitialized: false,
     resave: false,
     secret: process.env.COOKIE_SECRET,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      domain: process.env.NODE_ENV === 'production' && '.vickydev.com',
+    },
   })
 );
 app.use(passport.initialize());
