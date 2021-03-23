@@ -1,30 +1,34 @@
-﻿const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const { Post, Comment, User, Image, Hashtag } = require("../models");
-const { isLoggedIn } = require("./middlewares");
+﻿const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
+
+const { Post, Comment, User, Image, Hashtag } = require('../models');
+const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
 
 try {
-  fs.accessSync("uploads");
+  fs.accessSync('uploads');
 } catch (err) {
-  console.log("uploads 폴더가 없으므로 생성한다.");
-  fs.mkdirSync("uploads");
+  console.log('uploads 폴더가 없으므로 생성한다.');
+  fs.mkdirSync('uploads');
 }
 
-// 이미지 업로드를 위한 설정
+// set AWS sdk
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: 'ap-northeast-2',
+});
 const upload = multer({
-  storage: multer.diskStorage({
-    destination(req, file, done) {
-      done(null, "uploads");
-    },
-    filename(req, file, done) {
-      const ext = path.extname(file.originalname); // 확장자 추출(.png)
-      const basename = path.basename(file.originalname, ext); // 비키
-
-      done(null, basename + "_" + new Date().getTime() + ext); // 비키_12390123912.png
+  storage: multerS3({
+    s3: new AWS.S3(), // 권한을 얻음!
+    bucket: 'vicky-nodebird-s3',
+    key(req, file, cb) {
+      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
     },
   }),
   limits: {
@@ -33,7 +37,7 @@ const upload = multer({
 });
 
 // POST /post
-router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
+router.post('/', isLoggedIn, upload.none(), async (req, res, next) => {
   // formData내 text로만 데이터가 오므로 upload.none() 사용
   try {
     const hashtags = req.body.content.match(/#[^\s#]+/g); // hashTag 가져오기
@@ -75,18 +79,18 @@ router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
           include: [
             {
               model: User, // 댓글 작성자
-              attributes: ["id", "nickname"],
+              attributes: ['id', 'nickname'],
             },
           ],
         },
         {
           model: User, // 작성자
-          attributes: ["id", "nickname"],
+          attributes: ['id', 'nickname'],
         },
         {
           model: User, // 좋아요 누른사람
-          as: "Likers",
-          attributes: ["id"],
+          as: 'Likers',
+          attributes: ['id'],
         },
       ],
     });
@@ -98,10 +102,10 @@ router.post("/", isLoggedIn, upload.none(), async (req, res, next) => {
 });
 
 // POST /post/images
-router.post("/images", isLoggedIn, upload.array("image"), async (req, res, next) => {
+router.post('/images', isLoggedIn, upload.array('image'), async (req, res, next) => {
   try {
     console.log(req.files);
-    res.json(req.files.map((v) => v.filename));
+    res.json(req.files.map((v) => v.location));
   } catch (err) {
     console.error(err);
     next(err);
@@ -109,13 +113,13 @@ router.post("/images", isLoggedIn, upload.array("image"), async (req, res, next)
 });
 
 // GET /post/1
-router.get("/:postId", async (req, res, next) => {
+router.get('/:postId', async (req, res, next) => {
   try {
     const post = await Post.findOne({
       where: { id: req.params.postId },
     });
     if (!post) {
-      return res.status(404).send("존재하지 않는 게시글입니다.");
+      return res.status(404).send('존재하지 않는 게시글입니다.');
     }
 
     const fullPost = await Post.findOne({
@@ -125,33 +129,33 @@ router.get("/:postId", async (req, res, next) => {
       include: [
         {
           model: Post,
-          as: "Retweet",
+          as: 'Retweet',
           include: [
             {
               model: User,
-              attributes: ["id", "nickname"],
+              attributes: ['id', 'nickname'],
             },
             { model: Image },
           ],
         },
         {
           model: User,
-          attributes: ["id", "nickname"],
+          attributes: ['id', 'nickname'],
         },
         {
           model: Image,
         },
         {
           model: User,
-          as: "Likers",
-          attributes: ["id", "nickname"],
+          as: 'Likers',
+          attributes: ['id', 'nickname'],
         },
         {
           model: Comment,
           include: [
             {
               model: User,
-              attributes: ["id", "nickname"],
+              attributes: ['id', 'nickname'],
             },
           ],
         },
@@ -166,25 +170,25 @@ router.get("/:postId", async (req, res, next) => {
 });
 
 // POST /post/1/retweet
-router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
+router.post('/:postId/retweet', isLoggedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({
       where: { id: req.params.postId },
       include: [
         {
           model: Post,
-          as: "Retweet",
+          as: 'Retweet',
         },
       ],
     });
     if (!post) {
-      return res.status(403).send("존재하지 않는 게시글입니다.");
+      return res.status(403).send('존재하지 않는 게시글입니다.');
     }
 
     // 나의 글을 리트윗하거나 다른 사람이 나의 글을 리트윗한 것을 다시 내가 리트윗 하는 것은 막는다.
     // 위에서 Post.findOne으로 Post as Retweet을 include해주었기 때문에 post.Retweet을 사용할 수 있다.
     if (req.user.id === post.UserId || (post.Retweet && post.Retweet.UserId === req.user.id)) {
-      return res.status(403).send("자신의 글은 리트윗 할 수 없습니다.");
+      return res.status(403).send('자신의 글은 리트윗 할 수 없습니다.');
     }
 
     // 다른 게시글을 리트윗하거나 다른 사람이 다른 게시글을 리트윗한 것을 다시 리트윗 하는 것은 가능하다.
@@ -199,14 +203,14 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
       },
     });
     if (exPost) {
-      return res.status(403).send("이미 리트윗한 글입니다.");
+      return res.status(403).send('이미 리트윗한 글입니다.');
     }
 
     // 아래 코드만으로는 구체적으로 어떤 게시글이 리트윗 되었는지 알 수 없다.
     const retweet = await Post.create({
       UserId: req.user.id,
       RetweetId: retweetTargetId,
-      content: "retweet",
+      content: 'retweet',
     });
 
     // 따라서 리트윗 게시글의 정보를 가져오기 위해 넣어준다.
@@ -219,18 +223,18 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
       include: [
         {
           model: Post,
-          as: "Retweet",
+          as: 'Retweet',
           include: [
             {
               model: User,
-              attributes: ["id", "nickname"],
+              attributes: ['id', 'nickname'],
             },
             { model: Image },
           ],
         },
         {
           model: User,
-          attributes: ["id", "nickname"],
+          attributes: ['id', 'nickname'],
         },
         {
           model: Image,
@@ -240,14 +244,14 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
           include: [
             {
               model: User,
-              attributes: ["id", "nickname"],
+              attributes: ['id', 'nickname'],
             },
           ],
         },
         {
           model: User,
-          as: "Likers",
-          attributes: ["id"],
+          as: 'Likers',
+          attributes: ['id'],
         },
       ],
     });
@@ -259,7 +263,7 @@ router.post("/:postId/retweet", isLoggedIn, async (req, res, next) => {
 });
 
 // POST /post/1/comment
-router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
+router.post('/:postId/comment', isLoggedIn, async (req, res, next) => {
   // 위에 :postId를 통해 파라미터 주입: 주소 부분에서 동적으로 바뀌는 부분을 파라미터라고 함
   try {
     // 실제 있는 글에 코멘트를 추가하는지 여부에 대해 백엔드에서 검증 진행
@@ -267,7 +271,7 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
       where: { id: req.params.postId },
     });
     if (!post) {
-      return res.status(403).send("존재하지 않는 게시글입니다.");
+      return res.status(403).send('존재하지 않는 게시글입니다.');
     }
     const comment = await Comment.create({
       content: req.body.content,
@@ -279,7 +283,7 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
       include: [
         {
           model: User,
-          attributes: ["id", "nickname"],
+          attributes: ['id', 'nickname'],
         },
       ],
     });
@@ -291,11 +295,11 @@ router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
 });
 
 // PATCH /post/1/like
-router.patch("/:postId/like", isLoggedIn, async (req, res, next) => {
+router.patch('/:postId/like', isLoggedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: parseInt(req.params.postId, 10) } });
     if (!post) {
-      return res.status(403).send("존재하지 않는 게시글입니다.");
+      return res.status(403).send('존재하지 않는 게시글입니다.');
     }
     await post.addLikers(req.user.id); // db 조작할 떄는 반드시 await 붙여준다.
     res.json({ PostId: post.id, UserId: req.user.id });
@@ -306,11 +310,11 @@ router.patch("/:postId/like", isLoggedIn, async (req, res, next) => {
 });
 
 // DELETE /post/1/unlike
-router.delete("/:postId/unlike", isLoggedIn, async (req, res, next) => {
+router.delete('/:postId/unlike', isLoggedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: parseInt(req.params.postId, 10) } });
     if (!post) {
-      return res.status(403).send("존재하지 않는 게시글입니다.");
+      return res.status(403).send('존재하지 않는 게시글입니다.');
     }
     await post.removeLikers(req.user.id); // db 조작할 떄는 반드시 await 붙여준다.
     res.json({ PostId: post.id, UserId: req.user.id });
@@ -321,7 +325,7 @@ router.delete("/:postId/unlike", isLoggedIn, async (req, res, next) => {
 });
 
 // DELETE /post/1
-router.delete("/:postId", isLoggedIn, async (req, res, next) => {
+router.delete('/:postId', isLoggedIn, async (req, res, next) => {
   try {
     // 내가 쓴 게시글을 지우도록 보안 철저하게 처리
     await Post.destroy({
