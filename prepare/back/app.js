@@ -33,17 +33,23 @@ if (process.env.NODE_ENV === 'production') {
   app.use(morgan('combined')); // combined를 사용하면 더 자세한 로그를 볼 수 있다.
   app.use(hpp()); // 필수
   app.use(helmet()); // 필수
+  // cors 설정
+  app.use(
+    cors({
+      origin: ['http://vickydev.com'],
+      credentials: true,
+    })
+  );
 } else {
   app.use(morgan('dev'));
+  // cors 설정
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    })
+  );
 }
-
-// cors 설정
-app.use(
-  cors({
-    origin: ['http://localhost:3026', 'http://vickydev.com'],
-    credentials: true,
-  })
-);
 app.use('/', express.static(path.join(__dirname, 'uploads'))); // 운영체제에 맞게 알아서 해주는 path.join을 사용해 localhost:3065/uploads에 접근할 수 있도록 해준다.
 // req.body에 데이터 넣어주기 위한 설정
 app.use(express.json()); // Front에서 보낸 Json형식의 데이터를 req.body에 넣어준다.
@@ -57,7 +63,7 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: false,
-      domain: process.env.NODE_ENV === 'production' && '.vickydev.com',
+      domain: process.env.NODE_ENV === 'production' && '.vickydev.com', // api.vickydev.com과 vickydev.com 사이의 쿠키 공유 가능
     },
   })
 );
