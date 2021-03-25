@@ -1,14 +1,14 @@
-﻿import { useSelector } from "react-redux";
-import { useRouter } from "next/router";
-import axios from "axios";
-import Head from "next/head";
+﻿import { useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
+import axios from 'axios';
+import Head from 'next/head';
 
-import { END } from "redux-saga";
-import wrapper from "../../store/configureStore";
-import AppLayout from "../../components/AppLayout";
-import { LOAD_MY_INFO_REQUEST } from "../../reducers/user";
-import { LOAD_POST_REQUEST } from "../../reducers/post";
-import PostCard from "../../components/PostCard";
+import { END } from 'redux-saga';
+import wrapper from '../../store/configureStore';
+import AppLayout from '../../components/AppLayout';
+import { LOAD_MY_INFO_REQUEST } from '../../reducers/user';
+import { LOAD_POST_REQUEST } from '../../reducers/post';
+import PostCard from '../../components/PostCard';
 
 const Post = () => {
   const router = useRouter();
@@ -25,10 +25,10 @@ const Post = () => {
         <meta
           property="og:image"
           content={
-            singlePost.Images[0] ? singlePost.Images[0].src : "https://nodebird.com/favicon.ico"
+            singlePost.Images[0] ? singlePost.Images[0].src : 'http://vickydev.com/favicon.ico'
           }
         />
-        <meta property="og:url" content={`https://nodebird.com/post/${id}`} />
+        <meta property="og:url" content={`http://vickydev.com/post/${id}`} />
       </Head>
       <PostCard post={singlePost} />
     </AppLayout>
@@ -36,8 +36,8 @@ const Post = () => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-  const cookie = context.req ? context.req.headers.cookie : "";
-  axios.defaults.headers.Cookie = "";
+  const cookie = context.req ? context.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
   if (context.req && cookie) {
     axios.defaults.headers.Cookie = cookie;
   }
