@@ -45,7 +45,8 @@ if (process.env.NODE_ENV === 'production') {
   // cors 설정
   app.use(
     cors({
-      origin: true,
+      // origin: true,
+      origin: ['http://localhost:3026'],
       credentials: true,
     })
   );
@@ -83,6 +84,6 @@ app.use('/posts', postsRouter);
 app.use('/user', userRouter);
 app.use('/hashtag', hashtagRouter);
 
-app.listen(80, () => {
+app.listen(3065, () => {
   console.log('서버 실행 중!');
 });
