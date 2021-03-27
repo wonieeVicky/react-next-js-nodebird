@@ -1,8 +1,8 @@
-﻿import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import Link from "next/link";
-import { Card, Avatar, Button } from "antd";
-import { logoutRequestAction } from "../reducers/user";
+﻿import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import Link from 'next/link';
+import { Card, Avatar, Button } from 'antd';
+import { logoutRequestAction } from '../reducers/user';
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -22,7 +22,7 @@ const UserProfile = () => {
           </Link>
         </div>,
         <div key="followings">
-          <Link href={"/profile"}>
+          <Link href={'/profile'}>
             <a>
               팔로잉
               <br />
@@ -31,7 +31,7 @@ const UserProfile = () => {
           </Link>
         </div>,
         <div key="followings">
-          <Link href={"/profile"}>
+          <Link href={'/profile'}>
             <a>
               팔로워
               <br />
@@ -44,7 +44,7 @@ const UserProfile = () => {
       <Card.Meta
         title={me.nickname}
         avatar={
-          <Link href={`/user/${me.id}`}>
+          <Link href={`/user/${me.id}`} prefetch={false}>
             <a>
               <Avatar>{me.nickname[0]}</Avatar>
             </a>
