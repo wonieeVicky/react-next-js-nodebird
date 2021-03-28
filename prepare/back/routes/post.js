@@ -338,4 +338,28 @@ router.delete('/:postId', isLoggedIn, async (req, res, next) => {
   }
 });
 
+// PATCH /post/1
+router.patch('/:postId', isLoggedIn, async (req, res, next) => {
+  const hashtags = req.body.content.match(/#[^\s#]+/g); // hashTag 가져오기
+  try {
+    await Post.update(
+      { content: req.body.content },
+      {
+        where: { id: req.params.postId, UserId: req.user.id },
+      }
+    );
+    const post = await Post.findOne({ where: { id: req.params.postId } }); // update 시 post로 데이터 반환을 해주지 않아 다시 가져온다.
+    if (hashtags) {
+      const result = await Promise.all(
+        hashtags.map((tag) => Hashtag.findOrCreate({ where: { name: tag.slice(1).toLowerCase() } }))
+      );
+      await post.setHashtags(result.map((v) => v[0])); // setHashtags를 하면 기존 Hashtag를 모두 지우고 새로 저장한다.
+    }
+    res.status(200).json({ PostId: parseInt(req.params.postId, 10), content: req.body.content });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
 module.exports = router;

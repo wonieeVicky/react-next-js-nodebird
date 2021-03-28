@@ -1,5 +1,5 @@
-﻿import { all, fork, put, takeLatest, throttle, call } from "redux-saga/effects";
-import axios from "axios";
+﻿import { all, fork, put, takeLatest, throttle, call } from 'redux-saga/effects';
+import axios from 'axios';
 import {
   ADD_POST_REQUEST,
   ADD_POST_SUCCESS,
@@ -34,8 +34,11 @@ import {
   LOAD_USER_POSTS_FAILURE,
   LOAD_HASHTAG_POSTS_SUCCESS,
   LOAD_HASHTAG_POSTS_FAILURE,
-} from "../reducers/post";
-import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
+  UPDATE_POST_REQUEST,
+  UPDATE_POST_SUCCESS,
+  UPDATE_POST_FAILURE,
+} from '../reducers/post';
+import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from '../reducers/user';
 
 function unlikePostAPI(data) {
   return axios.delete(`/post/${data}/unlike`);
@@ -149,7 +152,7 @@ function* loadHashtagPosts(action) {
 }
 
 function addPostAPI(data) {
-  return axios.post("/post", data);
+  return axios.post('/post', data);
 }
 function* addPost(action) {
   try {
@@ -188,6 +191,24 @@ function* removePost(action) {
   } catch (err) {
     yield put({
       type: REMOVE_POST_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+function updatePostAPI(data) {
+  return axios.patch(`/post/${data.PostId}`, data);
+}
+function* updatePost(action) {
+  try {
+    const result = yield call(updatePostAPI, action.data);
+    yield put({
+      type: UPDATE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    yield put({
+      type: UPDATE_POST_FAILURE,
       error: err.response.data,
     });
   }
@@ -274,6 +295,9 @@ function* watchAddPost() {
 function* watchRemovePost() {
   yield takeLatest(REMOVE_POST_REQUEST, removePost);
 }
+function* watchUpdatePost() {
+  yield takeLatest(UPDATE_POST_REQUEST, updatePost);
+}
 function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
@@ -294,6 +318,7 @@ export default function* postSaga() {
     fork(watchLoadUserPosts),
     fork(watchLoadHashtagPosts),
     fork(watchRemovePost),
+    fork(watchUpdatePost),
     fork(watchAddComment),
     fork(watchUploadImages),
     fork(watchRetweet),
