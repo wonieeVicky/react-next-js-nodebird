@@ -30,6 +30,7 @@ passportConfig();
 
 // 배포용 설정
 if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
   app.use(morgan('combined')); // combined를 사용하면 더 자세한 로그를 볼 수 있다.
   app.use(hpp()); // 필수
   app.use(helmet()); // 필수
@@ -61,9 +62,10 @@ app.use(
     saveUninitialized: false,
     resave: false,
     secret: process.env.COOKIE_SECRET,
+    proxy: true,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: true,
       domain: process.env.NODE_ENV === 'production' && '.vickydev.com', // api.vickydev.com과 vickydev.com 사이의 쿠키 공유 가능
     },
   })
